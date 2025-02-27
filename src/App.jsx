@@ -8,8 +8,8 @@ function App() {
     return (
         <Router>
             <Routes>
-            <Route path="/donnateur" element={<AjoutDon/>}/>
-            <Route path="/assossiation" element={<Ajoutdemonde/>}/>
+            <Route path="/test" element={<AjoutDon/>}/>
+            //<Route path="/assossiation" element={<Ajoutdemonde/>}/>*/
             </Routes>
         </Router>
     );
