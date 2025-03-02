@@ -1,12 +1,11 @@
-import React from 'react'
+import React from 'react';
 
-const homme = () => {
+const Homme = () => {
   return (
-  <div>
-    <h1> BONJOUR ET BIEN VENUE </h1>
-  s</div>
-  )
-}
+    <div dir="rtl">
+      <h1> مرحبًا بك </h1>
+    </div>
+  );
+};
 
-export default homme
-
+export default Homme;

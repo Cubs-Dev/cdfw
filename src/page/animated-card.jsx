@@ -1,4 +1,4 @@
-import { useState } from "react";
+{/*import { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, Heart } from "lucide-react";
 
@@ -25,7 +25,7 @@ export default function AnimatedCard() {
         transition={{ type: "spring", stiffness: 300 }}
       >
         <div className="relative w-24 h-24 rounded-full overflow-hidden">
-          {/* Remplacement de Image par img pour React */}
+          {/* Remplacement de Image par img pour React 
           <img
             src="/placeholder.svg?height=96&width=96"
             alt="Profile"
@@ -90,4 +90,4 @@ export default function AnimatedCard() {
       </div>
     </motion.div>
   );
-}
+}*/}

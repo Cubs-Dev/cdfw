@@ -2,11 +2,11 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 // Layout
-import Layout from './layout/public/layout';
+import Layout from './layout/private/layout';
 
 // Page
 import Homme from './page/homme';
-import AnimatedCard from './page/animated-card';
+//import AnimatedCard from './page/animated-card';
 
 function App() {
     return (
@@ -15,7 +15,6 @@ function App() {
                 <Route path='/' element={<Layout />}>
                 <Route index element={<Homme />} />
                 </Route>
-            <Route path='/tt' element={<AnimatedCard/>}/>
 
             </Routes>
         </Router>
