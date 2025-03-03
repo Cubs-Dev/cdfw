@@ -1,76 +1,68 @@
 import React from "react";
 import { X, House, Contact, Newspaper } from "lucide-react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";  // Importation de framer-motion
+import { motion } from "framer-motion"; // Import framer-motion
 import logo from "../../../assets/lgo.png";
 
 const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
   return (
     <motion.div
-      className="fixed top-0 right-0 h-screen w-2/5  bg-indigo-900 text-white p-4"
+      className="fixed top-0 right-0 h-screen w-auto md:w-1/4 bg-indigo-900 text-white p-4 shadow-lg"
       dir="rtl"
-      initial={{ x: "100%" }}  // Initialisation: position hors écran
-      animate={{ x: isMenuOpen ? 0 : "100%" }}  // Déplacement de la sidebar
-      transition={{ type: "spring", stiffness: 300, damping: 30 }}  // Animation fluide avec un ressort
+      initial={{ x: "100%" }} // Sidebar démarre hors écran
+      animate={{ x: isMenuOpen ? 0 : "100%" }} // Animation entrée/sortie
+      transition={{ type: "spring", stiffness: 300, damping: 30 }} // Animation fluide
     >
-      {/* Logo avec animation */}
-      <div className="flex flex-col md :flex items-center gap-3  p-3">
+      {/* Bouton de fermeture */}
+      <button
+        onClick={() => setIsMenuOpen(false)}
+        className="absolute top-4 left-4 text-white hover:text-red-400 transition md:hidden"
+      >
+        <X size={24} />
+      </button>
+
+      {/* Logo */}
+      <div className="flex flex-col items-center gap-2 p-2">
         <motion.img
           src={logo}
           alt="CUBS DEVELOPMENT"
-          className="h-auto w-auto md : h-[6rem] w-[6rem]"
-          initial={{ opacity: 0, scale: 0.8 }}  // Initialisation : invisible et petite taille
-          animate={{ opacity: 1, scale: 1 }}  // Apparition et mise à l'échelle
-          transition={{ duration: 0.5 }}  // Animation rapide
+          className="h-[5rem] md:h-[6rem]"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
         />
         <motion.span
-          className="text-auto md:text-4xl"
-          initial={{ opacity: 0, y: -10 }}  // Initialisation : invisible et décalé vers le haut
-          animate={{ opacity: 1, y: 0 }}  // Apparition avec déplacement
-          transition={{ duration: 0.5, delay: 0.2 }}  // Retard de 0.2s pour l'animation
+          className="text-lg md:text-3xl"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
         >
           مرحبا بك معنا
         </motion.span>
       </div>
 
-      {/* Liens avec animation de survol */}
-      <nav className="mt-6 flex flex-col gap-4 items-end">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}  // Retard léger pour chaque lien
-        >
-          <Link
-            to="/"
-            className="flex items-center gap-2 text-white hover:text-indigo-400 transition duration-300 transform hover:scale-105"
+      {/* Liens de navigation */}
+      <nav className="mt-6 flex flex-col gap-4 items-start pl-4">
+        {[
+          { to: "/", icon: <House />, label: "الرئيسية", delay: 0.4 },
+          { to: "/contact", icon: <Contact />, label: "اتصل بنا", delay: 0.6 },
+          { to: "/blog", icon: <Newspaper />, label: "الأخبار", delay: 0.8 },
+        ].map(({ to, icon, label, delay }) => (
+          <motion.div
+            key={to}
+            className="w-full"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay }}
           >
-            <House /> الرئيسية
-          </Link>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.6 }}
-        >
-          <Link
-            to="/contact"
-            className="flex items-center gap-2 text-white hover:text-indigo-400 transition duration-300 transform hover:scale-105"
-          >
-            <Contact /> اتصل بنا
-          </Link>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.8 }}
-        >
-          <Link
-            to="/blog"
-            className="flex items-center gap-2 text-white hover:text-indigo-400 transition duration-300 transform hover:scale-105"
-          >
-            <Newspaper /> الأخبار
-          </Link>
-        </motion.div>
+            <Link
+              to={to}
+              className="flex items-center gap-3 text-white hover:text-indigo-400 transition duration-300 transform hover:scale-105"
+            >
+              {icon} <span>{label}</span>
+            </Link>
+          </motion.div>
+        ))}
       </nav>
     </motion.div>
   );
