@@ -7,35 +7,24 @@ import logo from "../../../assets/lgo.png";
 const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
   return (
     <motion.div
-      className="fixed top-0 right-0 h-screen w-[250px] bg-indigo-900 text-white p-4 shadow-lg"
+      className="fixed top-0 right-0 h-screen w-2/5  bg-indigo-900 text-white p-4"
       dir="rtl"
       initial={{ x: "100%" }}  // Initialisation: position hors écran
       animate={{ x: isMenuOpen ? 0 : "100%" }}  // Déplacement de la sidebar
       transition={{ type: "spring", stiffness: 300, damping: 30 }}  // Animation fluide avec un ressort
     >
-      {/* Bouton pour fermer la Sidebar */}
-      <motion.button
-        className="absolute top-4 right-4 text-white"
-        onClick={() => setIsMenuOpen(false)}
-        whileHover={{ scale: 1.1 }}  // Légère mise à l'échelle au survol
-        whileTap={{ scale: 0.95 }}  // Réduction au clic
-        transition={{ type: "spring", stiffness: 400, damping: 10 }}
-      >
-        <X />
-      </motion.button>
-
       {/* Logo avec animation */}
-      <div className="flex flex-col items-center gap-2">
+      <div className="flex flex-col md :flex items-center gap-3  p-3">
         <motion.img
           src={logo}
           alt="CUBS DEVELOPMENT"
-          className="h-[4rem] w-[4rem]"
+          className="h-auto w-auto md : h-[6rem] w-[6rem]"
           initial={{ opacity: 0, scale: 0.8 }}  // Initialisation : invisible et petite taille
           animate={{ opacity: 1, scale: 1 }}  // Apparition et mise à l'échelle
           transition={{ duration: 0.5 }}  // Animation rapide
         />
         <motion.span
-          className="text-xl"
+          className="text-auto md:text-4xl"
           initial={{ opacity: 0, y: -10 }}  // Initialisation : invisible et décalé vers le haut
           animate={{ opacity: 1, y: 0 }}  // Apparition avec déplacement
           transition={{ duration: 0.5, delay: 0.2 }}  // Retard de 0.2s pour l'animation

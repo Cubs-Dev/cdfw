@@ -5,7 +5,7 @@ import logo from "../../../assets/lgo.png";
 import Sidebar from "./Sidebar"; // Import Sidebar
 
 const Navbar = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(true);
 
   return (
     <>

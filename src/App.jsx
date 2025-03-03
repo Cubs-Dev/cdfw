@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 // Layout
-import Layout from './layout/private/layout';
+import Privatelayout from './layout/private/privatelayout';
 
 // Page
 import Homme from './page/homme';
@@ -12,7 +12,7 @@ function App() {
     return (
         <Router>
             <Routes>
-                <Route path='/' element={<Layout />}>
+                <Route path='/' element={<Privatelayout />}>
                 <Route index element={<Homme />} />
                 </Route>
 
