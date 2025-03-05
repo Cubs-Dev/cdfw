@@ -5,7 +5,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Privatelayout from './layout/private/privatelayout';
 
 // Page
-import Homme from './page/homme';
+import Mofawadhiya from './layout/private/page/mofawadhiya';
 //import AnimatedCard from './page/animated-card';
 
 function App() {
@@ -13,7 +13,7 @@ function App() {
         <Router>
             <Routes>
                 <Route path='/' element={<Privatelayout />}>
-                <Route index element={<Homme />} />
+                <Route index element={<Mofawadhiya/>} />
                 </Route>
 
             </Routes>

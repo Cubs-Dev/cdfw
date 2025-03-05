@@ -1,28 +1,28 @@
 import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Navbar from './component/Navbar';
-import Sidebar from './component/Sidebar';
+import Sidebar from './component/sidebar';
 
 const PrivateLayout = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(true);
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden">
-      {/* Navbar en haut */}
+    <div className="flex flex-col h-full">
+      {/* Navbar at the top */}
       <header className="w-full">
         <Navbar setIsMenuOpen={setIsMenuOpen} />
       </header>
 
-      {/* Contenu principal + Sidebar */}
-      <main className="flex">
-        {/* Zone principale prend tout l’espace restant */}
-        <div className="flex-grow w-full p-4">
+      {/* Main content + Sidebar */}
+      <main className="flex h-full">
+        {/* Main content area adjusts based on Sidebar state */}
+        <div className={`h-full transition-all duration-300 ${isMenuOpen ? 'w-5/6' : 'w-full'}`}>
           <Outlet />
         </div>
 
-        {/* Sidebar, affiché seulement si isMenuOpen est true */}
+        {/* Sidebar, only visible when isMenuOpen is true */}
         {isMenuOpen && (
-          <div className="w-64 md:w-1/4">
+          <div className="absolute top-0 right-0 w-auto md:w-1/6">
             <Sidebar isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
           </div>
         )}
