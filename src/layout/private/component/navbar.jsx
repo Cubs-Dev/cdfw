@@ -10,6 +10,11 @@ const Navbar = ({ setIsMenuOpen }) => {
         <Menu />
       </button>
 
+      {/* Titre */}
+      <div className="flex items-center text-white text-2xl">
+        <h1> فضاء الإدارة</h1>
+      </div>
+      
       {/* Bouton de connexion */}
       <Link to="/login" className="flex items-center h-[3rem] px-4 border-2 border-white bg-black rounded-full text-white">
         <LogIn className="ml-2" /> تسجيل الدخول

@@ -22,7 +22,7 @@ const PrivateLayout = () => {
 
         {/* Sidebar, only visible when isMenuOpen is true */}
         {isMenuOpen && (
-          <div className="absolute top-0 right-0 w-auto md:w-1/6">
+          <div className="absolute top-0 right-0 w-auto h-screen md:w-1/6">
             <Sidebar isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
           </div>
         )}

@@ -1,5 +1,5 @@
 import React from "react";
-import { X, House, Contact, Newspaper } from "lucide-react";
+import { X, House, Contact, Newspaper , Facebook, InstagramIcon } from "lucide-react";  // Importing GitHub and Twitter icons
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import logo from "../../../assets/lgo.png";
@@ -40,10 +40,20 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
       </div>
 
       <nav className="flex flex-col gap-2 items-start p-3 text-sm ">
-        <NavItem to="/" icon={<Contact />} label="فضاء المفوّضيات" delay={0.4} />
+        <NavItem to="/amofawadhiya" icon={<Contact />} label="فضاء المفوّضيات" delay={0.4} />
         <NavItem to="/contact" icon={<Contact />} label="اتصل بنا" delay={0.6} />
         <NavItem to="/blog" icon={<Newspaper />} label="الأخبار" delay={0.8} />
       </nav>
+
+      {/* Social Media Icons */}
+      <div className="flex justify-center gap-5 mt-5">
+        <a href="https://github.com" target="_blank" rel="noopener noreferrer">
+          <InstagramIcon size={30} className="text-white hover:text-gray-600 transition" />
+        </a>
+        <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
+          <Facebook size={30} className="text-white hover:text-blue-400 transition" />
+        </a>
+      </div>
     </motion.div>
   );
 };
@@ -58,7 +68,7 @@ const NavItem = ({ to, icon, label, delay }) => {
     >
       <Link
         to={to}
-        className="flex items-center gap-3 text-white hover:text-indigo-800 hover:bg-yellow-200 transition duration-300 transform hover:scale-105  rounded-full p-2 border-r-8 border-b-2 border-yellow-500"
+        className="flex w-auto items-center gap-3 text-white hover:text-indigo-800 hover:bg-yellow-200 transition duration-300 transform hover:scale-105  rounded-full p-2 border-r-8 border-b-2 border-yellow-500"
       >
         {icon} <span>{label}</span>
       </Link>
