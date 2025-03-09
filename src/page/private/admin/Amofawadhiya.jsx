@@ -15,7 +15,7 @@ const Amofawadhiya = () => {
   useEffect(() => {
     const fetchMofawadhiya = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/mofawadhiya');
+        const response = await axios.get('https://localhost:5000/api/mofawadhiya/gmofawadhiya');
         setMofawadhiyaList(response.data.data || []);  // Default to empty array if no data
       } catch (err) {
         console.error('Erreur lors de la récupération des données:', err);
@@ -49,31 +49,46 @@ const Amofawadhiya = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
     console.log('Form data:', formData); // Vérification des données avant envoi
-
+  
+    // Vérification côté front avant d'envoyer les données
+    if (!formData.idsrr || !formData.nomrr || !formData.prenomrr || !formData.regionr) {
+      dispatch(setError("Tous les champs obligatoires doivent être remplis !"));
+      return;
+    }
+  
     try {
       dispatch(setLoading(true));
-      const response = await axios.post('http://localhost:5000/api/mofawadhiya/gmofawadhiya', formData);
+      const response = await axios.post(
+        'http://localhost:5000/api/mofawadhiya/mofawadhiya',
+        formData,
+        { withCredentials: true }  // Permet d'envoyer les cookies si nécessaire
+      );
+  
       dispatch(resetForm());
       dispatch(setIsModalOpen(false));
-      navigate('/some-page'); // Redirection après succès
-
-      // Only update if the response has valid data
-      if (response.data.data) {
+      navigate('/amofawadhiya'); // Redirection après succès
+  
+      // Vérifier si les données existent avant de mettre à jour la liste
+      if (response.data && response.data.data) {
         setMofawadhiyaList((prevList) => [...prevList, response.data.data]);
       }
     } catch (err) {
-      dispatch(setError(err.message));
       console.error('Erreur de soumission:', err);
+  
+      // Gérer l'erreur de manière plus détaillée
+      const errorMessage = err.response?.data?.message || "Erreur inconnue";
+      dispatch(setError(errorMessage));
     } finally {
       dispatch(setLoading(false));
     }
   };
-
+    
   return (
     <div className="relative min-h-screen bg-gray-300 flex flex-col justify-center items-center dir-rtl">
       <div className="absolute top-4 right-4 flex items-center text-indigo-900 text-3xl md:text-4xl gap-2">
-        <h1>فضاء المفوّضيات</h1>
+        <h1>قائمة المفوّضيات</h1>
         <Contact className="w-14 h-14" />
       </div>
 
@@ -216,22 +231,21 @@ const Amofawadhiya = () => {
       )}
 
       {/* Table to Display Mofawadhiya Data */}
-      <div className="mt-10 w-full px-4">
-        <h3 className="text-2xl text-indigo-900 mb-4">قائمة المفوّضيات</h3>
+      <div className=" flex w-full px-4 overflow-x-auto"> {/* Ajout du défilement horizontal */}
         <table className="min-w-full bg-white border border-gray-300 shadow-md rounded-lg">
           <thead className="bg-gray-200">
             <tr>
               <th className="px-4 py-2 text-left">معرّف</th>
               <th className="px-4 py-2 text-left">إسم المفوّض</th>
               <th className="px-4 py-2 text-left">لقب المفوّض</th>
-              <th className="px-4 py-2 text-left">رقم الهاتف</th>
+              <th className="px-4 py-2 text-left">الهاتف</th>
               <th className="px-4 py-2 text-left">البريد الإلكتروني</th>
               <th className="px-4 py-2 text-left">المنطقة</th>
             </tr>
           </thead>
           <tbody>
-            {mofawadhiyaList.map((item) => (
-              <tr key={item._id} className="border-b hover:bg-gray-100">
+            {mofawadhiyaList.map((item, index) => (
+              <tr key={index} className="border-t">
                 <td className="px-4 py-2">{item.idsrr}</td>
                 <td className="px-4 py-2">{item.nomrr}</td>
                 <td className="px-4 py-2">{item.prenomrr}</td>
