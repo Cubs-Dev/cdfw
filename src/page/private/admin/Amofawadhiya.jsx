@@ -1,21 +1,29 @@
 import React, { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Contact, X } from 'lucide-react'; 
-import { setIsModalOpen, setFormData, resetForm, setLoading, setError } from '../../../features/admin/amofawadhiyaSlice';
+import { Plus, Contact, X } from 'lucide-react';
 import axios from 'axios';
 
 const Amofawadhiya = () => {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { isModalOpen, formData, loading, error } = useSelector((state) => state.amofawadhiya);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    idsrr: '',
+    nomrr: '',
+    prenomrr: '',
+    numtelrr: '',
+    adresseemailrr: '',
+    regionr: ''
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [mofawadhiyaList, setMofawadhiyaList] = useState([]);  // State to store the list of Mofawadhiya
 
   // Fetch Mofawadhiya data on component mount
   useEffect(() => {
     const fetchMofawadhiya = async () => {
       try {
-        const response = await axios.get('https://localhost:5000/api/mofawadhiya/gmofawadhiya');
+        const response = await axios.get('http://localhost:5000/api/users/');
         setMofawadhiyaList(response.data.data || []);  // Default to empty array if no data
       } catch (err) {
         console.error('Erreur lors de la récupération des données:', err);
@@ -33,8 +41,8 @@ const Amofawadhiya = () => {
     };
   }, [isModalOpen]);
 
-  const handleOpenModal = () => dispatch(setIsModalOpen(true));
-  const handleCloseModal = () => dispatch(setIsModalOpen(false));
+  const handleOpenModal = () => setIsModalOpen(true);
+  const handleCloseModal = () => setIsModalOpen(false);
 
   const handleBackgroundClick = (e) => {
     if (e.target === e.currentTarget) {
@@ -44,7 +52,7 @@ const Amofawadhiya = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    dispatch(setFormData({ [name]: value }));
+    setFormData({ ...formData, [name]: value });
   };
 
   const handleSubmit = async (e) => {
@@ -54,20 +62,27 @@ const Amofawadhiya = () => {
   
     // Vérification côté front avant d'envoyer les données
     if (!formData.idsrr || !formData.nomrr || !formData.prenomrr || !formData.regionr) {
-      dispatch(setError("Tous les champs obligatoires doivent être remplis !"));
+      setError("Tous les champs obligatoires doivent être remplis !");
       return;
     }
   
     try {
-      dispatch(setLoading(true));
+      setLoading(true);
       const response = await axios.post(
-        'http://localhost:5000/api/mofawadhiya/mofawadhiya',
+        'http://localhost:5000/api/users/create',
         formData,
         { withCredentials: true }  // Permet d'envoyer les cookies si nécessaire
       );
   
-      dispatch(resetForm());
-      dispatch(setIsModalOpen(false));
+      setFormData({
+        idsrr: '',
+        nomrr: '',
+        prenomrr: '',
+        numtelrr: '',
+        adresseemailrr: '',
+        regionr: ''
+      });
+      setIsModalOpen(false);
       navigate('/amofawadhiya'); // Redirection après succès
   
       // Vérifier si les données existent avant de mettre à jour la liste
@@ -79,9 +94,9 @@ const Amofawadhiya = () => {
   
       // Gérer l'erreur de manière plus détaillée
       const errorMessage = err.response?.data?.message || "Erreur inconnue";
-      dispatch(setError(errorMessage));
+      setError(errorMessage);
     } finally {
-      dispatch(setLoading(false));
+      setLoading(false);
     }
   };
     
