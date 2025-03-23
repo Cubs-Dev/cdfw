@@ -1,23 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { Contact, Plus } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux'; // Import de useDispatch et useSelector pour interagir avec Redux
-import MofawadhiyaModal from './MofawadhiyaModal';
-import { fetchUsersrbr } from '../../../features/user/userSlice'; // Import de la fonction fetchUsers
+import LeaderModal from './LeaderModal';
+import { fetchUsersleader } from '../../../features/user/userSlice'; // Import de la fonction fetchUsers
 
-const Amofawadhiya = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const dispatch = useDispatch();
-  const { users, loading, error } = useSelector(state => state.user); // Accéder à l'état des utilisateurs dans Redux
 
-  // Utilisation de useEffect pour récupérer les utilisateurs au montage du composant
-  useEffect(() => {
-    dispatch(fetchUsersrbr()); // Dispatch de l'action pour récupérer les utilisateurs
-  }, [dispatch]);
-
+const Leaders = () => {
+      const [isModalOpen, setIsModalOpen] = useState(false);
+      const dispatch = useDispatch();
+      const { users, loading, error } = useSelector(state => state.user); // Accéder à l'état des utilisateurs dans Redux
+    
+      // Utilisation de useEffect pour récupérer les utilisateurs au montage du composant
+      useEffect(() => {
+        dispatch(fetchUsersleader()); // Dispatch de l'action pour récupérer les utilisateurs
+      }, [dispatch]);
+    
   return (
     <div className="relative min-h-screen bg-gray-300 flex flex-col justify-center items-center dir-rtl">
       <div className="absolute top-4 right-4 flex items-center text-indigo-900 text-3xl md:text-4xl gap-2">
-        <h1>قائمة المفوّضيات</h1>
+        <h1>قائمة الفرق</h1>
         <Contact className="w-14 h-14" />
       </div>
 
@@ -28,7 +29,7 @@ const Amofawadhiya = () => {
         إضافة <Plus className="mr-1" />
       </button>
 
-      <MofawadhiyaModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <LeaderModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
 
       <div className="flex w-full px-4 overflow-x-auto">
         {loading ? (
@@ -63,7 +64,7 @@ const Amofawadhiya = () => {
         )}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Amofawadhiya;
+export default Leaders

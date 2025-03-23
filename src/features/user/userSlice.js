@@ -22,11 +22,23 @@ export const createUser = createAsyncThunk(
 );
 
 // Récupérer les utilisateurs avec gestion des erreurs
-export const fetchUsers = createAsyncThunk(
-  "users/fetchAll",
+export const fetchUsersrbr = createAsyncThunk(
+  "users/fetchRbr",
   async (_, { rejectWithValue }) => {
     try {
       const res = await http.get("/users/rbr");
+      return res.data; // Retourne les données des utilisateurs
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || 'Une erreur est survenue lors de la récupération des utilisateurs');
+    }
+  }
+);
+
+export const fetchUsersleader = createAsyncThunk(
+  "users/fetchLeader",
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await http.get("/users/leader");
       return res.data; // Retourne les données des utilisateurs
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || 'Une erreur est survenue lors de la récupération des utilisateurs');
@@ -54,11 +66,18 @@ export const userSlice = createSlice({
       .addCase(createUser.rejected, (state, action) => {
         state.error = action.payload; // Enregistrer l'erreur dans l'état
       })
-      .addCase(fetchUsers.fulfilled, (state, action) => {
+      .addCase(fetchUsersrbr.fulfilled, (state, action) => {
         state.users = action.payload; // Remplacer la liste des utilisateurs par celle reçue
         state.error = null; // Réinitialiser l'erreur
       })
-      .addCase(fetchUsers.rejected, (state, action) => {
+      .addCase(fetchUsersrbr.rejected, (state, action) => {
+        state.error = action.payload; // Enregistrer l'erreur dans l'état
+      })
+      .addCase(fetchUsersleader.fulfilled, (state, action) => {
+        state.users = action.payload; // Remplacer la liste des utilisateurs leaders par celle reçue
+        state.error = null; // Réinitialiser l'erreur
+      })
+      .addCase(fetchUsersleader.rejected, (state, action) => {
         state.error = action.payload; // Enregistrer l'erreur dans l'état
       });
   },
