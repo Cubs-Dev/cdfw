@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react';
 import { X, AlertCircle } from 'lucide-react';
-import { useDispatch, useSelector } from 'react-redux';
-import { createUser, fetchUsersrbr } from '../../../features/user/userSlice';
+import { useDispatch } from 'react-redux';
+import { updateUser, fetchUsersrbr } from '../../../features/user/userSlice';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const MofawadhiyaModal = ({ isOpen, onClose }) => {
+const UpdateModalMofawadhiya = ({ isOpen, onClose, userData }) => {
   const dispatch = useDispatch();
 
   const [formData, setFormData] = useState({
+    id: '', // On stocke l'id sans l'afficher
     idscout: '',
     nom: '',
     prenom: '',
@@ -20,6 +21,22 @@ const MofawadhiyaModal = ({ isOpen, onClose }) => {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
+  // Préremplissage des données
+  useEffect(() => {
+    if (userData) {
+      setFormData({
+        id: userData._id || '', // Récupération de l'id
+        idscout: userData.idscout || '',
+        nom: userData.nom || '',
+        prenom: userData.prenom || '',
+        numtel: userData.numtel || '',
+        adresseemail: userData.adresseemail || '',
+        region: userData.region || '',
+      });
+    }
+  }, [userData]);
+
+  // Gérer overflow body quand modal ouverte
   useEffect(() => {
     document.body.style.overflow = isOpen ? 'hidden' : 'auto';
     return () => { document.body.style.overflow = 'auto'; };
@@ -63,32 +80,24 @@ const MofawadhiyaModal = ({ isOpen, onClose }) => {
       return;
     }
 
-    const userData = {
+    const updatedUserData = {
       idscout: formData.idscout,
       nom: formData.nom,
       prenom: formData.prenom,
       numtel: formData.numtel,
       adresseemail: formData.adresseemail,
       region: formData.region,
-      role: 'rbr',
-      mot_de_passe: formData.idscout,
+      role: 'rbr', // On garde le rôle
     };
 
     try {
-      await dispatch(createUser(userData)).unwrap();
-      setFormData({
-        idscout: '',
-        nom: '',
-        prenom: '',
-        numtel: '',
-        adresseemail: '',
-        region: '',
-      });
+      // On utilise bien l'id stocké dans formData
+      await dispatch(updateUser({ id: formData.id, ...updatedUserData })).unwrap();
       onClose();
-      dispatch(fetchUsersrbr()); // تحديث القائمة بعد الإضافة
-      toast.success('✅ تمت إضافة المفوّضية بنجاح');
+      dispatch(fetchUsersrbr());
+      toast.success('✅ تم تعديل بيانات المفوّضية بنجاح');
     } catch (error) {
-      setErrorMessage(error.message || error.response?.data?.message || 'حدث خطأ أثناء إنشاء المستخدم.');
+      setErrorMessage(error.message || error.response?.data?.message || 'حدث خطأ أثناء تعديل المستخدم.');
     } finally {
       setLoading(false);
     }
@@ -102,16 +111,13 @@ const MofawadhiyaModal = ({ isOpen, onClose }) => {
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div className="relative bg-indigo-900 text-white p-6 md:p-8 rounded-2xl shadow-2xl w-11/12 md:w-1/2 max-h-[85vh] overflow-y-auto text-right">
-
-        {/* العنوان وزر الإغلاق */}
         <div className="relative flex justify-center items-center mb-6">
-          <h3 className="text-3xl font-bold text-yellow-400">إضافة مفوّضية</h3>
+          <h3 className="text-3xl font-bold text-yellow-400">تعديل المفوّضية</h3>
           <button onClick={onClose} className="absolute left-3 top-0 w-10 h-10 flex items-center justify-center rounded-full border border-yellow-500 hover:bg-red-500 hover:text-white transition">
             <X size={24} />
           </button>
         </div>
 
-        {/* رسالة الخطأ */}
         {errorMessage && (
           <div className="flex items-center text-red-700 bg-red-100 border border-red-300 rounded-lg p-3 mb-4 text-sm">
             <AlertCircle className="ml-2 text-red-500" size={20} />
@@ -119,10 +125,8 @@ const MofawadhiyaModal = ({ isOpen, onClose }) => {
           </div>
         )}
 
-        {/* النموذج */}
         <form onSubmit={handleSubmit} className="space-y-5">
-
-          {[ 
+          {[
             { label: 'المعرّف الكشفي', name: 'idscout', type: 'text' },
             { label: 'اللقب', name: 'nom', type: 'text' },
             { label: 'الاسم', name: 'prenom', type: 'text' },
@@ -144,7 +148,6 @@ const MofawadhiyaModal = ({ isOpen, onClose }) => {
             </div>
           ))}
 
-          {/* اختيار الولاية */}
           <div>
             <label className="block text-lg text-yellow-200 mb-1">اختر الولاية</label>
             <select
@@ -168,7 +171,6 @@ const MofawadhiyaModal = ({ isOpen, onClose }) => {
             </select>
           </div>
 
-          {/* زر الحفظ */}
           <button
             type="submit"
             className="w-full p-3 bg-yellow-500 hover:bg-yellow-400 text-indigo-900 text-xl rounded-full transition border-r-8 border-b-2 border-yellow-800 flex justify-center items-center gap-2"
@@ -182,7 +184,7 @@ const MofawadhiyaModal = ({ isOpen, onClose }) => {
                 </svg>
                 جاري التحميل...
               </>
-            ) : 'تسجيل'}
+            ) : 'حفظ التعديلات'}
           </button>
         </form>
       </div>
@@ -190,4 +192,4 @@ const MofawadhiyaModal = ({ isOpen, onClose }) => {
   );
 };
 
-export default MofawadhiyaModal;
+export default UpdateModalMofawadhiya;

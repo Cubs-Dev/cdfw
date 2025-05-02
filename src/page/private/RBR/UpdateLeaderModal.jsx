@@ -1,24 +1,40 @@
 import { useState, useEffect } from 'react';
 import { X, AlertCircle } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
-import { createUser, fetchUsersrbr } from '../../../features/user/userSlice';
+import { updateUser, fetchUsersleader } from '../../../features/user/userSlice';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const MofawadhiyaModal = ({ isOpen, onClose }) => {
+const UpdateLeaderModal = ({ isOpen, onClose, userData }) => {
   const dispatch = useDispatch();
+  const user = useSelector((state) => state.auth.user);
 
   const [formData, setFormData] = useState({
+    id: '',
     idscout: '',
     nom: '',
     prenom: '',
     numtel: '',
     adresseemail: '',
-    region: '',
+    groupe: '',   // 🆕 Champ groupe ajouté
   });
 
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
+  useEffect(() => {
+    if (userData) {
+      setFormData({
+        id: userData._id || '',
+        idscout: userData.idscout || '',
+        nom: userData.nom || '',
+        prenom: userData.prenom || '',
+        numtel: userData.numtel || '',
+        adresseemail: userData.adresseemail || '',
+        groupe: userData.groupe || '',   // 🆕 Prérempli si existant
+      });
+    }
+  }, [userData]);
 
   useEffect(() => {
     document.body.style.overflow = isOpen ? 'hidden' : 'auto';
@@ -40,7 +56,7 @@ const MofawadhiyaModal = ({ isOpen, onClose }) => {
     setLoading(true);
     setErrorMessage('');
 
-    const requiredFields = ['idscout', 'nom', 'prenom', 'numtel', 'adresseemail', 'region'];
+    const requiredFields = ['idscout', 'nom', 'prenom', 'numtel', 'adresseemail', 'groupe'];
     for (let field of requiredFields) {
       if (!formData[field]) {
         setErrorMessage('جميع الحقول مطلوبة.');
@@ -63,32 +79,31 @@ const MofawadhiyaModal = ({ isOpen, onClose }) => {
       return;
     }
 
-    const userData = {
+    if (!user?.region || !user?.id) {
+      setErrorMessage('معلومات المستخدم غير مكتملة (المعرف أو الولاية مفقود). يرجى إعادة تسجيل الدخول.');
+      setLoading(false);
+      return;
+    }
+
+    const updatedUserData = {
       idscout: formData.idscout,
       nom: formData.nom,
       prenom: formData.prenom,
       numtel: formData.numtel,
       adresseemail: formData.adresseemail,
-      region: formData.region,
-      role: 'rbr',
-      mot_de_passe: formData.idscout,
+      groupe: formData.groupe,   // 🆕 Inclu ici
+      region: user.region,
+      createdBy: user.id,
+      role: 'leader',
     };
 
     try {
-      await dispatch(createUser(userData)).unwrap();
-      setFormData({
-        idscout: '',
-        nom: '',
-        prenom: '',
-        numtel: '',
-        adresseemail: '',
-        region: '',
-      });
+      await dispatch(updateUser({ id: formData.id, ...updatedUserData })).unwrap();
       onClose();
-      dispatch(fetchUsersrbr()); // تحديث القائمة بعد الإضافة
-      toast.success('✅ تمت إضافة المفوّضية بنجاح');
+      dispatch(fetchUsersleader());
+      toast.success('✅ تم تعديل بيانات القائد بنجاح');
     } catch (error) {
-      setErrorMessage(error.message || error.response?.data?.message || 'حدث خطأ أثناء إنشاء المستخدم.');
+      setErrorMessage(error.message || error.response?.data?.message || 'حدث خطأ أثناء تعديل القائد.');
     } finally {
       setLoading(false);
     }
@@ -102,16 +117,13 @@ const MofawadhiyaModal = ({ isOpen, onClose }) => {
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div className="relative bg-indigo-900 text-white p-6 md:p-8 rounded-2xl shadow-2xl w-11/12 md:w-1/2 max-h-[85vh] overflow-y-auto text-right">
-
-        {/* العنوان وزر الإغلاق */}
         <div className="relative flex justify-center items-center mb-6">
-          <h3 className="text-3xl font-bold text-yellow-400">إضافة مفوّضية</h3>
+          <h3 className="text-3xl font-bold text-yellow-400">تعديل القائد</h3>
           <button onClick={onClose} className="absolute left-3 top-0 w-10 h-10 flex items-center justify-center rounded-full border border-yellow-500 hover:bg-red-500 hover:text-white transition">
             <X size={24} />
           </button>
         </div>
 
-        {/* رسالة الخطأ */}
         {errorMessage && (
           <div className="flex items-center text-red-700 bg-red-100 border border-red-300 rounded-lg p-3 mb-4 text-sm">
             <AlertCircle className="ml-2 text-red-500" size={20} />
@@ -119,15 +131,14 @@ const MofawadhiyaModal = ({ isOpen, onClose }) => {
           </div>
         )}
 
-        {/* النموذج */}
         <form onSubmit={handleSubmit} className="space-y-5">
-
-          {[ 
+          {[
             { label: 'المعرّف الكشفي', name: 'idscout', type: 'text' },
             { label: 'اللقب', name: 'nom', type: 'text' },
             { label: 'الاسم', name: 'prenom', type: 'text' },
             { label: 'رقم الهاتف', name: 'numtel', type: 'text', hint: 'أدخل 8 أرقام' },
             { label: 'البريد الإلكتروني', name: 'adresseemail', type: 'email' },
+            { label: 'المجموعة', name: 'groupe', type: 'text' }, // 🆕 Champ groupe ajouté ici
           ].map(({ label, name, type, hint }) => (
             <div key={name}>
               <label className="block text-lg text-yellow-200 mb-1">{label}</label>
@@ -144,31 +155,6 @@ const MofawadhiyaModal = ({ isOpen, onClose }) => {
             </div>
           ))}
 
-          {/* اختيار الولاية */}
-          <div>
-            <label className="block text-lg text-yellow-200 mb-1">اختر الولاية</label>
-            <select
-              name="region"
-              value={formData.region}
-              onChange={handleChange}
-              className="bg-yellow-50 text-indigo-900 rounded-full text-lg w-full p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 text-right border-r-8 border-b-2 border-yellow-500"
-              required
-            >
-              <option value="" disabled>اختر ولاية</option>
-              {[
-                'تونس', 'أريانة', 'بن عروس', 'منوبة',
-                'نابل', 'زغوان', 'بنزرت', 'باجة',
-                'جندوبة', 'الكاف', 'سليانة', 'القيروان',
-                'سوسة', 'المنستير', 'المهدية', 'صفاقس',
-                'سيدي بوزيد', 'القصرين', 'قفصة', 'توزر',
-                'قبلي', 'قابس', 'مدنين', 'تطاوين'
-              ].map((region, index) => (
-                <option key={index} value={region}>{region}</option>
-              ))}
-            </select>
-          </div>
-
-          {/* زر الحفظ */}
           <button
             type="submit"
             className="w-full p-3 bg-yellow-500 hover:bg-yellow-400 text-indigo-900 text-xl rounded-full transition border-r-8 border-b-2 border-yellow-800 flex justify-center items-center gap-2"
@@ -182,7 +168,7 @@ const MofawadhiyaModal = ({ isOpen, onClose }) => {
                 </svg>
                 جاري التحميل...
               </>
-            ) : 'تسجيل'}
+            ) : 'حفظ التعديلات'}
           </button>
         </form>
       </div>
@@ -190,4 +176,4 @@ const MofawadhiyaModal = ({ isOpen, onClose }) => {
   );
 };
 
-export default MofawadhiyaModal;
+export default UpdateLeaderModal;

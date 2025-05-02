@@ -1,14 +1,13 @@
-import { useState, useEffect } from 'react';
-import { Plus, X } from 'lucide-react';
-import { useDispatch, useSelector } from "react-redux";
+import React, { useState, useEffect } from 'react';
+import { X, AlertCircle } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
 import { createUser } from '../../../features/user/userSlice';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const LeaderModal = ({ isOpen, onClose }) => {
   const dispatch = useDispatch();
-
-  // Récupérer l'utilisateur depuis le store de manière sécurisée
-  const { user } = useSelector((state) => state.auth);
-  const userRegion = user?.region?.value || ''; // Vérification sécurisée et valeur par défaut
+  const { user } = useSelector((state) => state.auth); // ✅ utilisateur connecté
 
   const [formData, setFormData] = useState({
     idscout: '',
@@ -17,7 +16,6 @@ const LeaderModal = ({ isOpen, onClose }) => {
     numtel: '',
     adresseemail: '',
     groupe: '',
-    region: userRegion,  // Initialiser avec la valeur de la région ou une valeur par défaut
   });
 
   const [loading, setLoading] = useState(false);
@@ -29,7 +27,13 @@ const LeaderModal = ({ isOpen, onClose }) => {
   }, [isOpen]);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    if (name === 'numtel') {
+      const numericValue = value.replace(/\D/g, '');
+      setFormData({ ...formData, [name]: numericValue });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -37,19 +41,41 @@ const LeaderModal = ({ isOpen, onClose }) => {
     setLoading(true);
     setErrorMessage('');
 
-    if (!formData.idscout || !formData.nom || !formData.prenom || !formData.numtel || !formData.adresseemail || !formData.groupe || !formData.region) {
-      setErrorMessage('Tous les champs sont requis.');
+    const requiredFields = ['idscout', 'nom', 'prenom', 'numtel', 'adresseemail', 'groupe'];
+    for (let field of requiredFields) {
+      if (!formData[field]) {
+        setErrorMessage('جميع الحقول مطلوبة.');
+        setLoading(false);
+        return;
+      }
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.adresseemail)) {
+      setErrorMessage('صيغة البريد الإلكتروني غير صحيحة.');
       setLoading(false);
       return;
     }
 
+    const numtelRegex = /^[0-9]{8}$/;
+    if (!numtelRegex.test(formData.numtel)) {
+      setErrorMessage('رقم الهاتف يجب أن يحتوي على 8 أرقام.');
+      setLoading(false);
+      return;
+    }
+
+    // 🟢 Ajout de l'id du créateur et la région de l'utilisateur connecté
     const userData = {
       ...formData,
       role: 'leader',
       mot_de_passe: formData.idscout,
+      region: user?.region,  // ✅ Région de l'utilisateur connecté
+      createdBy: user?.id,
+      
     };
 
     try {
+      console.log(userData);
       await dispatch(createUser(userData)).unwrap();
       setFormData({
         idscout: '',
@@ -57,12 +83,12 @@ const LeaderModal = ({ isOpen, onClose }) => {
         prenom: '',
         numtel: '',
         adresseemail: '',
-        groupe: '', // Réinitialiser le champ 'groupe'
-        region: '', // Réinitialiser la région
+        groupe: '',
       });
       onClose();
+      toast.success('✅ تم إنشاء القائد بنجاح');
     } catch (error) {
-      setErrorMessage(error.message || error.response?.data?.message || 'Une erreur est survenue');
+      setErrorMessage(error.message || error.response?.data?.message || 'حدث خطأ أثناء إنشاء المستخدم.');
     } finally {
       setLoading(false);
     }
@@ -71,42 +97,69 @@ const LeaderModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
-         onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="relative bg-blue-500 p-8 rounded-lg w-11/12 md:w-1/2 max-h-[80vh] overflow-y-auto">
-        <div className="relative flex justify-center items-center mb-5">
-          <h3 className="text-3xl text-indigo-900">إضافة مفوّضية</h3>
-          <button onClick={onClose} className="absolute right-3 top-0 w-12 h-12 flex items-center justify-center rounded-full text-black text-2xl border border-white hover:bg-red-500 hover:text-white">
-            <X />
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <div className="relative bg-indigo-900 text-white p-6 md:p-8 rounded-2xl shadow-2xl w-11/12 md:w-1/2 max-h-[85vh] overflow-y-auto text-right">
+
+        {/* العنوان وزر الإغلاق */}
+        <div className="relative flex justify-center items-center mb-6">
+          <h3 className="text-3xl font-bold text-yellow-400">إضافة قائد</h3>
+          <button onClick={onClose} className="absolute left-3 top-0 w-10 h-10 flex items-center justify-center rounded-full border border-yellow-500 hover:bg-red-500 hover:text-white transition">
+            <X size={24} />
           </button>
         </div>
 
-        {errorMessage && <div className="text-red-500 mb-4">{errorMessage}</div>}
+        {/* رسالة الخطأ */}
+        {errorMessage && (
+          <div className="flex items-center text-red-700 bg-red-100 border border-red-300 rounded-lg p-3 mb-4 text-sm">
+            <AlertCircle className="ml-2 text-red-500" size={20} />
+            <span>{errorMessage}</span>
+          </div>
+        )}
 
-        <form onSubmit={handleSubmit}>
-          {['idscout', 'nom', 'prenom', 'numtel', 'adresseemail'].map((field, index) => (
-            <div key={index} className="mb-5">
-              <h6 className="text-black text-2xl mb-2">{field}</h6>
-              <input type="text" name={field} value={formData[field]} onChange={handleChange} 
-                     className="bg-white rounded-full text-2xl w-full p-2" required />
+        {/* النموذج */}
+        <form onSubmit={handleSubmit} className="space-y-5">
+
+          {[ 
+            { label: 'المعرّف الكشفي', name: 'idscout', type: 'text' },
+            { label: 'اللقب', name: 'nom', type: 'text' },
+            { label: 'الاسم', name: 'prenom', type: 'text' },
+            { label: 'رقم الهاتف', name: 'numtel', type: 'text', hint: 'أدخل 8 أرقام' },
+            { label: 'البريد الإلكتروني', name: 'adresseemail', type: 'email' },
+            { label: 'اسم المجموعة', name: 'groupe', type: 'text' },
+          ].map(({ label, name, type, hint }) => (
+            <div key={name}>
+              <label className="block text-lg text-yellow-200 mb-1">{label}</label>
+              <input
+                type={type}
+                name={name}
+                value={formData[name]}
+                onChange={handleChange}
+                maxLength={name === 'numtel' ? 8 : undefined}
+                className="bg-yellow-50 text-indigo-900 rounded-full text-lg w-full p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 text-right border-r-8 border-b-2 border-yellow-500"
+                required
+              />
+              {hint && <p className="text-xs text-yellow-100 mt-1">{hint}</p>}
             </div>
           ))}
 
-          <div className="mb-5">
-            <h6 className="text-black text-2xl mb-2">اختار الخيار المفضل</h6>
-            <input type="text" name="region" value={formData.region} 
-                   onChange={handleChange} className="bg-white rounded-full text-2xl w-full p-2" required />
-          </div>
-
-          <div className="mb-5">
-            <h6 className="text-black text-2xl mb-2">Groupe</h6>
-            <input type="text" name="groupe" value={formData.groupe} onChange={handleChange} 
-                   className="bg-white rounded-full text-2xl w-full p-2" required />
-          </div>
-
-          <button type="submit" className="w-full p-3 bg-green-600 hover:bg-black text-white text-2xl rounded-full" 
-                  disabled={loading}>
-            {loading ? 'جاري التحميل...' : 'تسجيل'}
+          {/* زر الحفظ */}
+          <button
+            type="submit"
+            className="w-full p-3 bg-yellow-500 hover:bg-yellow-400 text-indigo-900 text-xl rounded-full transition border-r-8 border-b-2 border-yellow-800 flex justify-center items-center gap-2"
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <svg className="animate-spin h-5 w-5 text-indigo-900" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                </svg>
+                جاري التحميل...
+              </>
+            ) : 'تسجيل'}
           </button>
         </form>
       </div>
